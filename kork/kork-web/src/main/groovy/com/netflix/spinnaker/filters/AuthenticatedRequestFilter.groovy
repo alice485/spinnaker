@@ -17,7 +17,6 @@
 package com.netflix.spinnaker.filters
 
 import com.netflix.spinnaker.kork.common.Header
-import com.netflix.spinnaker.security.AllowedAccountsAuthorities
 import com.netflix.spinnaker.security.AuthenticatedRequest
 import groovy.util.logging.Slf4j
 import org.springframework.security.core.context.SecurityContextHolder
@@ -71,7 +70,6 @@ class AuthenticatedRequestFilter implements Filter {
   @Override
   void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     def spinnakerUser = null
-    def spinnakerAccounts = null
     HashMap<String, String> otherSpinnakerHeaders = new HashMap<>()
 
     try {
@@ -84,16 +82,14 @@ class AuthenticatedRequestFilter implements Filter {
       def principal = securityContext?.authentication?.principal
       if (principal && principal instanceof UserDetails) {
         spinnakerUser = principal.username
-        spinnakerAccounts = AllowedAccountsAuthorities.getAllowedAccounts(principal).join(",")
       }
     } catch (Exception e) {
-      log.error("Unable to extract spinnaker user and account information", e)
+      log.error("Unable to extract spinnaker user information", e)
     }
 
     if (extractSpinnakerHeaders) {
       def httpServletRequest = (HttpServletRequest) request
       spinnakerUser = spinnakerUser ?: httpServletRequest.getHeader(Header.USER.getHeader())
-      spinnakerAccounts = spinnakerAccounts ?: httpServletRequest.getHeader(Header.ACCOUNTS.getHeader())
 
       Enumeration<String> headers = httpServletRequest.getHeaderNames()
 
@@ -134,10 +130,6 @@ class AuthenticatedRequestFilter implements Filter {
     try {
       if (spinnakerUser) {
         AuthenticatedRequest.setUser(spinnakerUser)
-      }
-
-      if (spinnakerAccounts) {
-        AuthenticatedRequest.setAccounts(spinnakerAccounts)
       }
 
       for (header in otherSpinnakerHeaders) {

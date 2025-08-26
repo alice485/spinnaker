@@ -90,7 +90,6 @@ class DependentPipelineStarterTest {
             invocation -> {
               Map<String, Object> p = invocation.getArgument(1);
               gotMDC.put("X-SPINNAKER-USER", MDC.get("X-SPINNAKER-USER"));
-              gotMDC.put("X-SPINNAKER-ACCOUNTS", MDC.get("X-SPINNAKER-ACCOUNTS"));
 
               PipelineExecution result = pipeline();
               result.setName((String) p.get("name"));
@@ -132,7 +131,6 @@ class DependentPipelineStarterTest {
 
     assertThat(result.getName()).isEqualTo("triggered");
     assertThat(gotMDC.get("X-SPINNAKER-USER")).isEqualTo("user");
-    assertThat(gotMDC.get("X-SPINNAKER-ACCOUNTS")).isEqualTo("acct3,acct4");
 
     // Test without authenticated user
     result =

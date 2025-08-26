@@ -32,13 +32,11 @@ class AuthenticatedRequestSpec extends Specification {
     AuthenticatedRequest.getSpinnakerUser(new org.springframework.security.core.userdetails.User("spinnaker-other", "", [])).get() == "spinnaker-other"
   }
 
-  void "should extract allowed account details by priority (Principal > MDC)"() {
+  void "should extract allowed account details from Principal"() {
     when:
     MDC.clear()
-    MDC.put(Header.ACCOUNTS.header, "account1,account2")
 
     then:
-    AuthenticatedRequest.getSpinnakerAccounts().get() == "account1,account2"
     AuthenticatedRequest.getSpinnakerAccounts(new User(allowedAccounts: ["account3", "account4"])).get() == "account3,account4"
     AuthenticatedRequest.getSpinnakerAccounts(
       new org.springframework.security.core.userdetails.User(
@@ -59,22 +57,18 @@ class AuthenticatedRequestSpec extends Specification {
   void "should propagate user/allowed account details"() {
     when:
     MDC.put(Header.USER.header, "spinnaker-user")
-    MDC.put(Header.ACCOUNTS.header, "account1,account2")
 
     def closure = AuthenticatedRequest.propagate({
       assert AuthenticatedRequest.getSpinnakerUser().get() == "spinnaker-user"
-      assert AuthenticatedRequest.getSpinnakerAccounts().get() == "account1,account2"
       return true
     })
 
     MDC.put(Header.USER.header, "spinnaker-another-user")
-    MDC.put(Header.ACCOUNTS.header, "account1,account3")
     closure.call()
 
     then:
     // ensure MDC context is restored
     MDC.get(Header.USER.header) == "spinnaker-another-user"
-    MDC.get(Header.ACCOUNTS.header) == "account1,account3"
 
     when:
     MDC.clear()
@@ -94,7 +88,6 @@ class AuthenticatedRequestSpec extends Specification {
     Map allheaders = AuthenticatedRequest.getAuthenticationHeaders()
     allheaders == [
             'X-SPINNAKER-USER': Optional.of("spinnaker-another-user"),
-            'X-SPINNAKER-ACCOUNTS': Optional.empty(),
             'X-SPINNAKER-CLOUDPROVIDER': Optional.of("aws")]
   }
 
@@ -107,7 +100,6 @@ class AuthenticatedRequestSpec extends Specification {
     Map allheaders = AuthenticatedRequest.getAuthenticationHeaders()
     allheaders == [
       'X-SPINNAKER-USER'        : Optional.empty(),
-      'X-SPINNAKER-ACCOUNTS'    : Optional.empty(),
       'X-SPINNAKER-MY-ATTRIBUTE': Optional.empty()]
   }
 
