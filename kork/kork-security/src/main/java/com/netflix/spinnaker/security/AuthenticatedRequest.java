@@ -72,7 +72,7 @@ public class AuthenticatedRequest {
           return Optional.of(String.join(",", allowedAccounts));
         }
       }
-      return get(Header.ACCOUNTS);
+      return Optional.empty();
     }
 
     /** @return the user id of the current user */
@@ -254,7 +254,6 @@ public class AuthenticatedRequest {
     String userOrigin = getSpinnakerUserOrigin().orElse(null);
     String executionId = getSpinnakerExecutionId().orElse(null);
     String requestId = getSpinnakerRequestId().orElse(null);
-    String spinnakerAccounts = getSpinnakerAccounts(principal).orElse(null);
     String spinnakerApp = getSpinnakerApplication().orElse(null);
 
     return () -> {
@@ -264,7 +263,6 @@ public class AuthenticatedRequest {
       try {
         setOrRemoveMdc(Header.USER.getHeader(), spinnakerUser);
         setOrRemoveMdc(Header.USER_ORIGIN.getHeader(), userOrigin);
-        setOrRemoveMdc(Header.ACCOUNTS.getHeader(), spinnakerAccounts);
         setOrRemoveMdc(Header.REQUEST_ID.getHeader(), requestId);
         setOrRemoveMdc(Header.EXECUTION_ID.getHeader(), executionId);
         setOrRemoveMdc(Header.APPLICATION.getHeader(), spinnakerApp);
@@ -283,7 +281,6 @@ public class AuthenticatedRequest {
   public static Map<String, Optional<String>> getAuthenticationHeaders() {
     Map<String, Optional<String>> headers = new HashMap<>();
     headers.put(Header.USER.getHeader(), getSpinnakerUser());
-    headers.put(Header.ACCOUNTS.getHeader(), getSpinnakerAccounts());
 
     // Copy all headers that look like X-SPINNAKER*
     Map<String, String> allMdcEntries = MDC.getCopyOfContextMap();
@@ -294,9 +291,7 @@ public class AuthenticatedRequest {
 
         boolean isSpinnakerHeader =
             header.toLowerCase().startsWith(Header.XSpinnakerPrefix.toLowerCase());
-        boolean isSpinnakerAuthHeader =
-            Header.USER.getHeader().equalsIgnoreCase(header)
-                || Header.ACCOUNTS.getHeader().equalsIgnoreCase(header);
+        boolean isSpinnakerAuthHeader = Header.USER.getHeader().equalsIgnoreCase(header);
 
         if (isSpinnakerHeader && !isSpinnakerAuthHeader) {
           headers.put(header, Optional.ofNullable(mdcEntry.getValue()));
@@ -364,10 +359,6 @@ public class AuthenticatedRequest {
 
   public static Optional<String> get(String header) {
     return Optional.ofNullable(MDC.get(header));
-  }
-
-  public static void setAccounts(String accounts) {
-    set(Header.ACCOUNTS, accounts);
   }
 
   public static void setUser(String user) {
