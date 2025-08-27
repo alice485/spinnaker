@@ -55,7 +55,6 @@ class PipelineBuilderTest {
   void buildIncludesAllowedAccountsWhenTrue() {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // when
     PipelineBuilder pipelineBuilder =
@@ -71,7 +70,6 @@ class PipelineBuilderTest {
   void buildExcludesAllowedAccountsWhenFalse() {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // when
     PipelineBuilder pipelineBuilder =

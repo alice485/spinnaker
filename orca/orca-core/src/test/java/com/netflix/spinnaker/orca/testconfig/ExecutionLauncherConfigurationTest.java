@@ -227,7 +227,6 @@ public class ExecutionLauncherConfigurationTest extends YamlFileApplicationConte
   public void testIncludeSpinnakerAccountsInOrchestration() throws Exception {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // override properties to allow orchestration executions
     ExecutionConfigurationProperties executionConfigurationProperties =
@@ -264,7 +263,6 @@ public class ExecutionLauncherConfigurationTest extends YamlFileApplicationConte
   public void testExcludeSpinnakerAccountsFromOrchestration() throws Exception {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // override properties to 1. allow orchestration executions and 2. set includeAllowedAccounts to
     // false
@@ -302,7 +300,6 @@ public class ExecutionLauncherConfigurationTest extends YamlFileApplicationConte
   public void testIncludeSpinnakerAccountsInPipeline() throws Exception {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // when
     PipelineExecution pipelineExecution =
@@ -323,7 +320,6 @@ public class ExecutionLauncherConfigurationTest extends YamlFileApplicationConte
   public void testExcludeSpinnakerAccountsFromPipeline() throws Exception {
     // given
     MDC.put(Header.USER.getHeader(), "SpinnakerUser");
-    MDC.put(Header.ACCOUNTS.getHeader(), "Account1,Account2");
 
     // override properties to set includeAllowedAccounts to false
     ExecutionConfigurationProperties executionConfigurationProperties =

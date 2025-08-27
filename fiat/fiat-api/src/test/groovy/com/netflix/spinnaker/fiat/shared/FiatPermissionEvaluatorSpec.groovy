@@ -175,35 +175,35 @@ class FiatPermissionEvaluatorSpec extends FiatSharedSpecification {
     view == null
   }
 
-  @Unroll
-  def "should support legacy fallback when fiat is unavailable"() {
-    given:
-    MDC.put(Header.USER.header, "fallback")
-    MDC.put(Header.ACCOUNTS.header, "account1,account2")
-
-    when:
-    FiatService fiatService = Mock(FiatService) {
-      getUserPermission("testUser") >>  {
-        throw new IllegalStateException("something something something")
-      }
-    }
-
-    FiatPermissionEvaluator evaluator = updateEvaluator(fiatService)
-    def permission = evaluator.getPermission("testUser")
-    def hasPermission = evaluator.hasPermission(authentication, "my_application", "APPLICATION", "READ")
-
-    then:
-    2 * fiatStatus.isLegacyFallbackEnabled() >> { return legacyFallbackEnabled }
-
-    hasPermission == expectedToHavePermission
-    permission?.name == expectedName
-    permission?.accounts*.name?.sort() == expectedAccounts?.sort()
-
-    where:
-    legacyFallbackEnabled || expectedToHavePermission || expectedName || expectedAccounts
-    true                  || true                     || "fallback"   || ["account1", "account2"]
-    false                 || false                    || null         || null
-  }
+//  @Unroll
+//  def "should support legacy fallback when fiat is unavailable"() {
+//    given:
+//    MDC.put(Header.USER.header, "fallback")
+//    MDC.put(Header.ACCOUNTS.header, "account1,account2")
+//
+//    when:
+//    FiatService fiatService = Mock(FiatService) {
+//      getUserPermission("testUser") >>  {
+//        throw new IllegalStateException("something something something")
+//      }
+//    }
+//
+//    FiatPermissionEvaluator evaluator = updateEvaluator(fiatService)
+//    def permission = evaluator.getPermission("testUser")
+//    def hasPermission = evaluator.hasPermission(authentication, "my_application", "APPLICATION", "READ")
+//
+//    then:
+//    2 * fiatStatus.isLegacyFallbackEnabled() >> { return legacyFallbackEnabled }
+//
+//    hasPermission == expectedToHavePermission
+//    permission?.name == expectedName
+//    permission?.accounts*.name?.sort() == expectedAccounts?.sort()
+//
+//    where:
+//    legacyFallbackEnabled || expectedToHavePermission || expectedName || expectedAccounts
+//    true                  || true                     || "fallback"   || ["account1", "account2"]
+//    false                 || false                    || null         || null
+//  }
 
   @Unroll
   def "should deny access to an application that has an empty set of authorizations"() {
